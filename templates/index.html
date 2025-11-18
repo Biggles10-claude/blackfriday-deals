@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Black Friday Deal Finder</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="nav-left">
+            <h1>🛍️ Black Friday Deal Finder</h1>
+        </div>
+        <div class="nav-right">
+            <button id="refresh-btn" class="refresh-btn">
+                <span id="refresh-icon">🔄</span>
+                <span id="refresh-text">Refresh Deals</span>
+            </button>
+            <span id="last-updated" class="last-updated">No data yet</span>
+            <span id="deal-count" class="deal-count">0 deals</span>
+        </div>
+    </nav>
+
+    <!-- Progress Bar -->
+    <div id="progress-bar" class="progress-bar hidden">
+        <div class="progress-fill"></div>
+        <span id="progress-text">Scraping deals...</span>
+    </div>
+
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <h2>Collections</h2>
+            <div class="collection-list">
+                <button class="collection-btn active" data-collection="best_overall">
+                    <span class="collection-name">Best Overall</span>
+                    <span class="collection-count" data-count="best_overall">0</span>
+                </button>
+                <button class="collection-btn" data-collection="biggest_discounts">
+                    <span class="collection-name">Biggest Discounts</span>
+                    <span class="collection-count" data-count="biggest_discounts">0</span>
+                </button>
+                <button class="collection-btn" data-collection="hidden_gems">
+                    <span class="collection-name">Hidden Gems</span>
+                    <span class="collection-count" data-count="hidden_gems">0</span>
+                </button>
+                <button class="collection-btn" data-collection="verified_drops">
+                    <span class="collection-name">Verified Drops</span>
+                    <span class="collection-count" data-count="verified_drops">0</span>
+                </button>
+                <button class="collection-btn" data-collection="premium_picks">
+                    <span class="collection-name">Premium Picks</span>
+                    <span class="collection-count" data-count="premium_picks">0</span>
+                </button>
+            </div>
+
+            <div class="filters-section">
+                <h3>Filters</h3>
+                <div class="filter-group">
+                    <label>Min Discount %</label>
+                    <input type="range" id="discount-filter" min="0" max="90" value="0" step="5">
+                    <span id="discount-value">0%</span>
+                </div>
+                <div class="filter-group">
+                    <label>Min Rating</label>
+                    <input type="range" id="rating-filter" min="0" max="5" value="0" step="0.5">
+                    <span id="rating-value">Any</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div id="deals-container" class="deals-grid">
+                <div class="empty-state">
+                    <h2>No deals yet</h2>
+                    <p>Click "Refresh Deals" to start scraping</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Deal Modal -->
+    <div id="deal-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

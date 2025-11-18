@@ -1,0 +1,245 @@
+// WebSocket connection
+const socket = io();
+
+// State
+let allDeals = [];
+let currentCollection = 'best_overall';
+let filters = {
+    minDiscount: 0,
+    minRating: 0
+};
+
+// DOM elements
+const refreshBtn = document.getElementById('refresh-btn');
+const refreshIcon = document.getElementById('refresh-icon');
+const refreshText = document.getElementById('refresh-text');
+const lastUpdated = document.getElementById('last-updated');
+const dealCount = document.getElementById('deal-count');
+const progressBar = document.getElementById('progress-bar');
+const dealsContainer = document.getElementById('deals-container');
+const discountFilter = document.getElementById('discount-filter');
+const ratingFilter = document.getElementById('rating-filter');
+const discountValue = document.getElementById('discount-value');
+const ratingValue = document.getElementById('rating-value');
+const modal = document.getElementById('deal-modal');
+const closeBtn = document.querySelector('.close-btn');
+
+// Initialize
+loadDeals();
+setupEventListeners();
+
+function setupEventListeners() {
+    // Refresh button
+    refreshBtn.addEventListener('click', startRefresh);
+
+    // Collection buttons
+    document.querySelectorAll('.collection-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentCollection = btn.dataset.collection;
+
+            // Update active state
+            document.querySelectorAll('.collection-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            renderDeals();
+        });
+    });
+
+    // Filters
+    discountFilter.addEventListener('input', (e) => {
+        filters.minDiscount = parseInt(e.target.value);
+        discountValue.textContent = filters.minDiscount + '%';
+        renderDeals();
+    });
+
+    ratingFilter.addEventListener('input', (e) => {
+        filters.minRating = parseFloat(e.target.value);
+        ratingValue.textContent = filters.minRating === 0 ? 'Any' : filters.minRating + '★';
+        renderDeals();
+    });
+
+    // Modal close
+    closeBtn.addEventListener('click', () => {
+        modal.classList.remove('show');
+    });
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.classList.remove('show');
+        }
+    });
+
+    // WebSocket events
+    socket.on('scraping_progress', (data) => {
+        console.log('Progress:', data);
+        refreshText.textContent = `${data.retailer}: ${data.deals_found} deals`;
+    });
+
+    socket.on('scraping_complete', (data) => {
+        console.log('Complete:', data);
+        refreshBtn.classList.remove('loading');
+        refreshIcon.textContent = '✓';
+        refreshText.textContent = 'Refresh Complete';
+        progressBar.classList.add('hidden');
+
+        setTimeout(() => {
+            refreshIcon.textContent = '🔄';
+            refreshText.textContent = 'Refresh Deals';
+        }, 2000);
+
+        loadDeals();
+    });
+
+    socket.on('scraping_error', (data) => {
+        console.error('Error:', data);
+        refreshBtn.classList.remove('loading');
+        refreshText.textContent = 'Error - Try Again';
+        progressBar.classList.add('hidden');
+    });
+}
+
+async function loadDeals() {
+    try {
+        const response = await fetch('/api/deals');
+        const data = await response.json();
+
+        allDeals = data.deals || [];
+
+        // Update last updated
+        if (data.last_updated) {
+            const date = new Date(data.last_updated);
+            lastUpdated.textContent = `Updated ${formatTimeAgo(date)}`;
+        }
+
+        // Update collection counts
+        if (data.collections) {
+            Object.keys(data.collections).forEach(key => {
+                const countEl = document.querySelector(`[data-count="${key}"]`);
+                if (countEl) {
+                    countEl.textContent = data.collections[key].length;
+                }
+            });
+        }
+
+        window.collections = data.collections || {};
+        renderDeals();
+    } catch (error) {
+        console.error('Failed to load deals:', error);
+    }
+}
+
+function renderDeals() {
+    // Get deals for current collection
+    const collectionDealIds = window.collections[currentCollection] || [];
+    let deals = allDeals.filter(d => collectionDealIds.includes(d.id));
+
+    // Apply filters
+    deals = deals.filter(d => {
+        if (filters.minDiscount > 0 && d.discount_pct < filters.minDiscount) return false;
+        if (filters.minRating > 0 && d.rating < filters.minRating) return false;
+        return true;
+    });
+
+    dealCount.textContent = `${deals.length} deals`;
+
+    if (deals.length === 0) {
+        dealsContainer.innerHTML = `
+            <div class="empty-state">
+                <h2>No deals found</h2>
+                <p>Try adjusting your filters or refresh deals</p>
+            </div>
+        `;
+        return;
+    }
+
+    dealsContainer.innerHTML = deals.map(deal => createDealCard(deal)).join('');
+
+    // Add click handlers
+    document.querySelectorAll('.deal-card').forEach(card => {
+        card.addEventListener('click', () => {
+            showDealModal(allDeals.find(d => d.id === card.dataset.id));
+        });
+    });
+}
+
+function createDealCard(deal) {
+    const scoreClass = deal.scores.total >= 80 ? 'excellent' : deal.scores.total >= 60 ? 'good' : 'mediocre';
+
+    return `
+        <div class="deal-card" data-id="${deal.id}">
+            <div class="score-badge ${scoreClass}">${deal.scores.total}</div>
+            <img src="${deal.image || 'https://via.placeholder.com/300x200?text=No+Image'}"
+                 alt="${deal.title}"
+                 class="deal-image">
+            <div class="deal-content">
+                <h3 class="deal-title">${deal.title}</h3>
+                <div class="deal-price">
+                    <span class="price-current">$${deal.price.toFixed(2)}</span>
+                    ${deal.original_price > deal.price ? `<span class="price-original">$${deal.original_price.toFixed(2)}</span>` : ''}
+                    ${deal.discount_pct > 0 ? `<span class="discount-badge">${deal.discount_pct}% off</span>` : ''}
+                </div>
+                <div class="deal-rating">
+                    ${'★'.repeat(Math.round(deal.rating))}${'☆'.repeat(5 - Math.round(deal.rating))}
+                    <span>(${deal.review_count})</span>
+                </div>
+                <div class="deal-retailer">${deal.retailer}</div>
+            </div>
+        </div>
+    `;
+}
+
+function showDealModal(deal) {
+    const modalBody = document.getElementById('modal-body');
+
+    modalBody.innerHTML = `
+        <img src="${deal.image || 'https://via.placeholder.com/600x400?text=No+Image'}"
+             style="width: 100%; border-radius: 8px; margin-bottom: 1rem;">
+        <h2>${deal.title}</h2>
+        <div style="display: flex; gap: 1rem; margin: 1rem 0; align-items: center;">
+            <span style="font-size: 2rem; font-weight: 600;">$${deal.price.toFixed(2)}</span>
+            ${deal.original_price > deal.price ? `<span style="text-decoration: line-through; color: #86868b;">$${deal.original_price.toFixed(2)}</span>` : ''}
+            ${deal.discount_pct > 0 ? `<span style="background: #ff3b30; color: white; padding: 0.3rem 0.8rem; border-radius: 4px;">${deal.discount_pct}% OFF</span>` : ''}
+        </div>
+        <div style="margin: 1rem 0;">
+            <strong>Rating:</strong> ${deal.rating.toFixed(1)} ★ (${deal.review_count} reviews)
+        </div>
+        <div style="margin: 1rem 0;">
+            <strong>Retailer:</strong> ${deal.retailer}
+        </div>
+        <div style="margin: 1rem 0;">
+            <strong>Value Score:</strong> ${deal.scores.total} / 100
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.5rem; font-size: 0.9rem;">
+                <div>Discount: ${deal.scores.discount}</div>
+                <div>Quality: ${deal.scores.quality}</div>
+                <div>Credibility: ${deal.scores.credibility}</div>
+                <div>Price Tier: ${deal.scores.price_tier}</div>
+                <div>Legitimacy: ${deal.scores.legitimacy}</div>
+            </div>
+        </div>
+        <a href="${deal.url}" target="_blank" style="display: block; background: #0071e3; color: white; padding: 1rem; text-align: center; border-radius: 8px; text-decoration: none; margin-top: 1.5rem;">
+            View Deal →
+        </a>
+    `;
+
+    modal.classList.add('show');
+}
+
+function startRefresh() {
+    if (refreshBtn.classList.contains('loading')) return;
+
+    refreshBtn.classList.add('loading');
+    refreshIcon.textContent = '⏳';
+    refreshText.textContent = 'Refreshing...';
+    progressBar.classList.remove('hidden');
+
+    socket.emit('start_refresh');
+}
+
+function formatTimeAgo(date) {
+    const seconds = Math.floor((new Date() - date) / 1000);
+
+    if (seconds < 60) return 'just now';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
+    return `${Math.floor(seconds / 86400)} days ago`;
+}
