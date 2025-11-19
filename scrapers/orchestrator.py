@@ -4,7 +4,7 @@ from scrapers.amazon_au import AmazonAUScraper
 from analyzer.scorer import DealScorer
 from analyzer.collections import CollectionBuilder
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 
 class ScrapingOrchestrator:
     """Orchestrates parallel scraping from all retailers"""
@@ -67,7 +67,7 @@ class ScrapingOrchestrator:
         collections = self.collection_builder.build_all_collections(all_deals)
 
         return {
-            'last_updated': datetime.utcnow().isoformat() + 'Z',
+            'last_updated': datetime.now(timezone.utc).isoformat(),
             'deals': all_deals,
             'collections': collections
         }

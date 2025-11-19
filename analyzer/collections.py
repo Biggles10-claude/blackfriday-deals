@@ -4,12 +4,17 @@ class CollectionBuilder:
     """Builds smart collections from scored deals"""
 
     def build_best_overall(self, deals: List[Dict], limit: int = 50) -> List[str]:
-        """Top deals by total score (80+), mixed categories"""
+        """Top deals by total score - if no high-scoring deals, show all deals"""
+        # Try to get deals with score >= 80 and rating >= 3.5
         filtered = [
             d for d in deals
             if d['scores']['total'] >= 80
             and d.get('rating', 0) >= 3.5
         ]
+
+        # If no deals meet strict criteria, show all deals sorted by score
+        if not filtered:
+            filtered = deals
 
         sorted_deals = sorted(filtered, key=lambda x: x['scores']['total'], reverse=True)
         return [d['id'] for d in sorted_deals[:limit]]

@@ -166,25 +166,27 @@ function createDealCard(deal) {
     const scoreClass = deal.scores.total >= 80 ? 'excellent' : deal.scores.total >= 60 ? 'good' : 'mediocre';
 
     return `
-        <div class="deal-card" data-id="${deal.id}">
-            <div class="score-badge ${scoreClass}">${deal.scores.total}</div>
-            <img src="${deal.image || 'https://via.placeholder.com/300x200?text=No+Image'}"
-                 alt="${deal.title}"
-                 class="deal-image">
-            <div class="deal-content">
-                <h3 class="deal-title">${deal.title}</h3>
-                <div class="deal-price">
-                    <span class="price-current">$${deal.price.toFixed(2)}</span>
-                    ${deal.original_price > deal.price ? `<span class="price-original">$${deal.original_price.toFixed(2)}</span>` : ''}
-                    ${deal.discount_pct > 0 ? `<span class="discount-badge">${deal.discount_pct}% off</span>` : ''}
+        <a href="${deal.url}" target="_blank" rel="noopener noreferrer" class="deal-card-link">
+            <div class="deal-card" data-id="${deal.id}">
+                <div class="score-badge ${scoreClass}">${deal.scores.total}</div>
+                <img src="${deal.image || 'https://via.placeholder.com/300x200?text=No+Image'}"
+                     alt="${deal.title}"
+                     class="deal-image">
+                <div class="deal-content">
+                    <h3 class="deal-title">${deal.title}</h3>
+                    <div class="deal-price">
+                        <span class="price-current">$${deal.price.toFixed(2)}</span>
+                        ${deal.original_price > deal.price ? `<span class="price-original">$${deal.original_price.toFixed(2)}</span>` : ''}
+                        ${deal.discount_pct > 0 ? `<span class="discount-badge">${deal.discount_pct}% off</span>` : ''}
+                    </div>
+                    <div class="deal-rating">
+                        ${'★'.repeat(Math.round(deal.rating))}${'☆'.repeat(5 - Math.round(deal.rating))}
+                        <span>(${deal.review_count})</span>
+                    </div>
+                    <div class="deal-retailer">${deal.retailer}</div>
                 </div>
-                <div class="deal-rating">
-                    ${'★'.repeat(Math.round(deal.rating))}${'☆'.repeat(5 - Math.round(deal.rating))}
-                    <span>(${deal.review_count})</span>
-                </div>
-                <div class="deal-retailer">${deal.retailer}</div>
             </div>
-        </div>
+        </a>
     `;
 }
 

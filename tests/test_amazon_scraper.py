@@ -11,10 +11,11 @@ async def test_amazon_scraper_initialization():
 async def test_parse_product_card():
     scraper = AmazonAUScraper()
 
-    # Mock HTML for a product card
+    # Mock HTML for a product card with ALL fields
     html = '''
     <div data-asin="B08N5WRWNW">
         <h2><a href="/dp/B08N5WRWNW">Samsung Galaxy Tab</a></h2>
+        <img class="s-image" src="https://m.media-amazon.com/images/I/61abc123.jpg" />
         <span class="a-price-whole">599</span>
         <span class="a-price-decimal">.</span>
         <span class="a-price-fraction">00</span>
@@ -30,7 +31,13 @@ async def test_parse_product_card():
 
     deal = scraper.parse_product_card(card)
 
+    # Assert ALL fields extracted by parse_product_card
     assert deal is not None
     assert deal['title'] == 'Samsung Galaxy Tab'
     assert deal['price'] == 599.00
     assert deal['original_price'] == 1199.00
+    assert deal['url'] == 'https://www.amazon.com.au/dp/B08N5WRWNW'
+    assert deal['image'] == 'https://m.media-amazon.com/images/I/61abc123.jpg'
+    assert deal['rating'] == 4.6
+    assert deal['review_count'] == 1247
+    assert deal['category'] == 'Electronics'
