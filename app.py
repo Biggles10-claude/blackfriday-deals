@@ -15,7 +15,7 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 CACHE_FILE = 'data/deals_cache.json'
 GITHUB_RAW_URL = 'https://raw.githubusercontent.com/Biggles10-claude/blackfriday-deals/main/data/deals_cache.json'
-LOCAL_TAILSCALE_IP = os.getenv('LOCAL_TAILSCALE_IP', '100.83.37.54')
+LOCAL_WEBHOOK_URL = os.getenv('LOCAL_WEBHOOK_URL', 'https://claude-workspace.taildc3fd3.ts.net')
 WEBHOOK_SECRET = os.getenv('WEBHOOK_SECRET', 'dev-secret-key-change-me')
 
 def progress_callback(data):
@@ -59,7 +59,7 @@ def trigger_local_scrape():
         ).hexdigest()
 
         # Send webhook to local machine
-        local_url = f'http://{LOCAL_TAILSCALE_IP}:5001/webhook/trigger'
+        local_url = f'{LOCAL_WEBHOOK_URL}/webhook/trigger'
         response = httpx.post(
             local_url,
             json={'timestamp': datetime.now().isoformat()},
@@ -94,7 +94,7 @@ def trigger_local_scrape():
 def check_local_status():
     """Check if local machine is online and reachable"""
     try:
-        local_url = f'http://{LOCAL_TAILSCALE_IP}:5001/webhook/status'
+        local_url = f'{LOCAL_WEBHOOK_URL}/webhook/status'
         response = httpx.get(local_url, timeout=3.0)
 
         if response.status_code == 200:
