@@ -5,6 +5,8 @@ import os
 from datetime import datetime
 import asyncio
 import httpx
+import hmac
+import hashlib
 from scrapers.orchestrator import ScrapingOrchestrator
 
 app = Flask(__name__)
@@ -13,6 +15,8 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 CACHE_FILE = 'data/deals_cache.json'
 GITHUB_RAW_URL = 'https://raw.githubusercontent.com/Biggles10-claude/blackfriday-deals/main/data/deals_cache.json'
+LOCAL_TAILSCALE_IP = os.getenv('LOCAL_TAILSCALE_IP', '100.83.37.54')
+WEBHOOK_SECRET = os.getenv('WEBHOOK_SECRET', 'dev-secret-key-change-me')
 
 def progress_callback(data):
     """Emit scraping progress via WebSocket"""
@@ -41,6 +45,79 @@ def get_deals():
         pass
 
     return jsonify({'deals': [], 'categories': {}, 'category_stats': {}, 'last_updated': None})
+
+@app.route('/api/trigger-local-scrape', methods=['POST'])
+def trigger_local_scrape():
+    """Trigger scraping on local machine via Tailscale webhook"""
+    try:
+        # Create signature for webhook authentication
+        payload = json.dumps({'timestamp': datetime.now().isoformat()}).encode()
+        signature = hmac.new(
+            WEBHOOK_SECRET.encode(),
+            payload,
+            hashlib.sha256
+        ).hexdigest()
+
+        # Send webhook to local machine
+        local_url = f'http://{LOCAL_TAILSCALE_IP}:5001/webhook/trigger'
+        response = httpx.post(
+            local_url,
+            json={'timestamp': datetime.now().isoformat()},
+            headers={'X-Webhook-Signature': signature},
+            timeout=5.0
+        )
+
+        if response.status_code == 202:
+            return jsonify({
+                'status': 'success',
+                'message': 'Local scraper triggered',
+                'local_response': response.json()
+            }), 202
+        else:
+            return jsonify({
+                'status': 'error',
+                'message': f'Local machine returned {response.status_code}'
+            }), 500
+
+    except httpx.TimeoutException:
+        return jsonify({
+            'status': 'error',
+            'message': 'Local machine unreachable (timeout)'
+        }), 504
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 500
+
+@app.route('/api/check-local-status', methods=['GET'])
+def check_local_status():
+    """Check if local machine is online and reachable"""
+    try:
+        local_url = f'http://{LOCAL_TAILSCALE_IP}:5001/webhook/status'
+        response = httpx.get(local_url, timeout=3.0)
+
+        if response.status_code == 200:
+            return jsonify({
+                'status': 'online',
+                'local_data': response.json()
+            }), 200
+        else:
+            return jsonify({
+                'status': 'error',
+                'message': f'Local machine returned {response.status_code}'
+            }), 500
+
+    except httpx.TimeoutException:
+        return jsonify({
+            'status': 'offline',
+            'message': 'Local machine unreachable (timeout)'
+        }), 503
+    except Exception as e:
+        return jsonify({
+            'status': 'offline',
+            'message': str(e)
+        }), 503
 
 @socketio.on('start_refresh')
 def handle_refresh():

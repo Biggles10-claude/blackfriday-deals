@@ -234,15 +234,117 @@ function showDealModal(deal) {
     modal.classList.add('show');
 }
 
-function startRefresh() {
+async function startRefresh() {
     if (refreshBtn.classList.contains('loading')) return;
 
     refreshBtn.classList.add('loading');
     refreshIcon.textContent = '⏳';
-    refreshText.textContent = 'Refreshing...';
+    refreshText.textContent = 'Triggering local scraper...';
     progressBar.classList.remove('hidden');
 
-    socket.emit('start_refresh');
+    try {
+        // First check if local machine is online
+        const statusResponse = await fetch('/api/check-local-status');
+        const statusData = await statusResponse.json();
+
+        if (statusData.status !== 'online') {
+            refreshBtn.classList.remove('loading');
+            refreshIcon.textContent = '❌';
+            refreshText.textContent = 'Local machine offline';
+            progressBar.classList.add('hidden');
+
+            setTimeout(() => {
+                refreshIcon.textContent = '🔄';
+                refreshText.textContent = 'Refresh Deals';
+            }, 3000);
+            return;
+        }
+
+        // Trigger local scraping
+        const triggerResponse = await fetch('/api/trigger-local-scrape', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const triggerData = await triggerResponse.json();
+
+        if (triggerResponse.status === 202) {
+            refreshText.textContent = 'Local scraping started...';
+
+            // Poll for updates (GitHub will update, Render will redeploy)
+            pollForUpdates();
+        } else {
+            throw new Error(triggerData.message || 'Failed to trigger scraping');
+        }
+
+    } catch (error) {
+        console.error('Error:', error);
+        refreshBtn.classList.remove('loading');
+        refreshIcon.textContent = '❌';
+        refreshText.textContent = 'Error - Try Again';
+        progressBar.classList.add('hidden');
+
+        setTimeout(() => {
+            refreshIcon.textContent = '🔄';
+            refreshText.textContent = 'Refresh Deals';
+        }, 3000);
+    }
+}
+
+function pollForUpdates() {
+    // Poll every 10 seconds for updated deals
+    let pollCount = 0;
+    const maxPolls = 36; // 6 minutes max
+
+    const pollInterval = setInterval(async () => {
+        pollCount++;
+
+        try {
+            const response = await fetch('/api/deals');
+            const data = await response.json();
+
+            const currentTime = new Date();
+            const lastUpdateTime = new Date(data.last_updated);
+            const timeDiff = (currentTime - lastUpdateTime) / 1000; // seconds
+
+            // If data was updated in the last 2 minutes, scraping completed
+            if (timeDiff < 120) {
+                clearInterval(pollInterval);
+
+                refreshBtn.classList.remove('loading');
+                refreshIcon.textContent = '✓';
+                refreshText.textContent = 'Refresh Complete';
+                progressBar.classList.add('hidden');
+
+                setTimeout(() => {
+                    refreshIcon.textContent = '🔄';
+                    refreshText.textContent = 'Refresh Deals';
+                }, 2000);
+
+                loadDeals();
+            } else if (pollCount >= maxPolls) {
+                // Timeout after 6 minutes
+                clearInterval(pollInterval);
+
+                refreshBtn.classList.remove('loading');
+                refreshIcon.textContent = '⏱';
+                refreshText.textContent = 'Still processing...';
+                progressBar.classList.add('hidden');
+
+                setTimeout(() => {
+                    refreshIcon.textContent = '🔄';
+                    refreshText.textContent = 'Refresh Deals';
+                }, 3000);
+            } else {
+                // Update progress text
+                refreshText.textContent = `Waiting for updates... (${pollCount * 10}s)`;
+            }
+        } catch (error) {
+            console.error('Polling error:', error);
+        }
+    }, 10000); // Poll every 10 seconds
 }
 
 function formatTimeAgo(date) {
