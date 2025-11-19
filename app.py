@@ -4,6 +4,7 @@ import json
 import os
 from datetime import datetime
 import asyncio
+import httpx
 from scrapers.orchestrator import ScrapingOrchestrator
 
 app = Flask(__name__)
@@ -11,6 +12,7 @@ app.config['SECRET_KEY'] = 'blackfriday-secret-key'
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 CACHE_FILE = 'data/deals_cache.json'
+GITHUB_RAW_URL = 'https://raw.githubusercontent.com/Biggles10-claude/blackfriday-deals/main/data/deals_cache.json'
 
 def progress_callback(data):
     """Emit scraping progress via WebSocket"""
@@ -22,9 +24,22 @@ def index():
 
 @app.route('/api/deals')
 def get_deals():
+    # Try to load from local cache first
     if os.path.exists(CACHE_FILE):
-        with open(CACHE_FILE, 'r') as f:
-            return jsonify(json.load(f))
+        try:
+            with open(CACHE_FILE, 'r') as f:
+                return jsonify(json.load(f))
+        except:
+            pass
+
+    # Fallback to GitHub raw URL
+    try:
+        response = httpx.get(GITHUB_RAW_URL, timeout=10.0)
+        if response.status_code == 200:
+            return jsonify(response.json())
+    except:
+        pass
+
     return jsonify({'deals': [], 'collections': {}, 'last_updated': None})
 
 @socketio.on('start_refresh')
