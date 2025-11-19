@@ -9,15 +9,13 @@ class AmazonAUScraper(BaseScraper):
     def __init__(self):
         super().__init__('Amazon AU')
         self.base_url = 'https://www.amazon.com.au'
-        # Amazon AU: search multiple categories to get diverse products
-        self.search_categories = [
-            'electronics',
-            'computers',
-            'home',
-            'kitchen',
-            'sports',
-            'toys',
-            'fashion'
+        # Search for Black Friday deals with discount filter
+        self.deals_categories = [
+            ('electronics', 'Electronics'),
+            ('computers & accessories', 'Computers'),
+            ('home & kitchen', 'Home'),
+            ('sports & outdoors', 'Sports'),
+            ('toys & games', 'Toys')
         ]
 
     def parse_product_card(self, card) -> Optional[Dict]:
@@ -98,38 +96,52 @@ class AmazonAUScraper(BaseScraper):
             traceback.print_exc()
             return None
 
-    async def scrape(self) -> List[Dict]:
-        """Scrape Amazon AU across multiple categories"""
-        print(f"[{self.retailer_name}] Starting scrape across {len(self.search_categories)} categories...")
+    async def scrape(self, pages_per_category: int = 2) -> List[Dict]:
+        """Scrape discounted deals from Amazon AU (filtering for 10%+ discounts)
+
+        Args:
+            pages_per_category: Number of pages per category (default 2 = ~100 products per category)
+        """
+        print(f"[{self.retailer_name}] Scraping deals with discounts from {len(self.deals_categories)} categories...")
 
         all_deals = []
         seen_asins = set()
 
-        for category in self.search_categories:
-            search_url = f'{self.base_url}/s?k={category}'
-            print(f"[{self.retailer_name}] Scraping category: {category}")
+        for search_term, category_name in self.deals_categories:
+            print(f"[{self.retailer_name}] Category: {category_name}")
 
-            html = await self.fetch_page(search_url)
-            if not html:
-                print(f"[{self.retailer_name}] Failed to fetch {category}")
-                continue
+            for page_num in range(1, pages_per_category + 1):
+                # Search with "deal" keyword to prioritize discounted items
+                search_url = f'{self.base_url}/s?k={search_term}+deal&page={page_num}'
 
-            soup = BeautifulSoup(html, 'html.parser')
-            product_cards = soup.select('[data-asin]:not([data-asin=""])')
-            print(f"[{self.retailer_name}] Found {len(product_cards)} products in {category}")
+                html = await self.fetch_page(search_url)
+                if not html:
+                    print(f"[{self.retailer_name}] Failed to fetch {category_name} page {page_num}")
+                    continue
 
-            for card in product_cards:
-                asin = card.get('data-asin', '')
-                if asin in seen_asins:
-                    continue  # Skip duplicates across categories
+                soup = BeautifulSoup(html, 'html.parser')
+                product_cards = soup.select('[data-asin]:not([data-asin=""])')
+                print(f"[{self.retailer_name}] Page {page_num}: Found {len(product_cards)} products")
 
-                raw_deal = self.parse_product_card(card)
-                if raw_deal and raw_deal['price'] > 0:
-                    deal = self.standardize_deal(raw_deal)
-                    deal['category'] = category.capitalize()  # Add category
-                    all_deals.append(deal)
-                    seen_asins.add(asin)
+                deals_found = 0
+                for card in product_cards:
+                    asin = card.get('data-asin', '')
+                    if asin in seen_asins:
+                        continue
+
+                    raw_deal = self.parse_product_card(card)
+                    if raw_deal and raw_deal['price'] > 0:
+                        deal = self.standardize_deal(raw_deal)
+                        deal['category'] = category_name
+
+                        # ONLY include if it has a discount of 10% or more
+                        if deal['discount_pct'] >= 10:
+                            all_deals.append(deal)
+                            seen_asins.add(asin)
+                            deals_found += 1
+
+                print(f"[{self.retailer_name}] {deals_found} deals with 10%+ discount")
 
         self.deals = all_deals
-        print(f"[{self.retailer_name}] Scraped {len(all_deals)} unique deals across all categories")
+        print(f"[{self.retailer_name}] Total: {len(all_deals)} deals with 10%+ discounts")
         return all_deals
