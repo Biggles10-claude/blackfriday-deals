@@ -1,0 +1,9 @@
+# Local Scraper Service Dependencies
+# Install with: pip install -r requirements-local.txt
+
+flask==3.0.0
+httpx==0.25.2
+
+# Shared dependencies (must match main requirements.txt)
+beautifulsoup4==4.12.2
+aiohttp==3.9.1
