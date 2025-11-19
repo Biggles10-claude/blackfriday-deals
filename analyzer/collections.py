@@ -20,49 +20,46 @@ class CollectionBuilder:
         return [d['id'] for d in sorted_deals[:limit]]
 
     def build_biggest_discounts(self, deals: List[Dict], limit: int = 50) -> List[str]:
-        """Highest discount %, minimum 50% off and 3.5+ stars"""
+        """Highest discount %, minimum 20% off"""
         filtered = [
             d for d in deals
-            if d.get('discount_pct', 0) >= 50
-            and d.get('rating', 0) >= 3.5
+            if d.get('discount_pct', 0) >= 20
         ]
 
         sorted_deals = sorted(filtered, key=lambda x: x['discount_pct'], reverse=True)
         return [d['id'] for d in sorted_deals[:limit]]
 
     def build_hidden_gems(self, deals: List[Dict], limit: int = 50) -> List[str]:
-        """High scores (70+) but <100 reviews"""
+        """Good discounts (25%+) with lower review counts"""
         filtered = [
             d for d in deals
-            if d['scores']['total'] >= 70
-            and d.get('review_count', 0) < 100
-            and d.get('rating', 0) >= 4.0
+            if d.get('discount_pct', 0) >= 25
+            and d.get('review_count', 0) < 500
         ]
 
         sorted_deals = sorted(filtered, key=lambda x: x['scores']['total'], reverse=True)
         return [d['id'] for d in sorted_deals[:limit]]
 
     def build_verified_drops(self, deals: List[Dict], limit: int = 50) -> List[str]:
-        """Deals with legitimacy score 80+ (verified price drops)"""
+        """Deals with decent legitimacy (60+) and discounts"""
         filtered = [
             d for d in deals
-            if d['scores'].get('legitimacy', 0) >= 80
-            and d['scores']['total'] >= 60
+            if d['scores'].get('legitimacy', 0) >= 60
+            and d.get('discount_pct', 0) >= 15
         ]
 
         sorted_deals = sorted(filtered, key=lambda x: x['scores']['total'], reverse=True)
         return [d['id'] for d in sorted_deals[:limit]]
 
     def build_premium_picks(self, deals: List[Dict], limit: int = 50) -> List[str]:
-        """High-value items (>$500) with 4.5+ stars and verified pricing"""
+        """Higher-value items ($100+) with good discounts"""
         filtered = [
             d for d in deals
-            if d.get('price', 0) > 500
-            and d.get('rating', 0) >= 4.5
-            and d['scores'].get('legitimacy', 0) >= 70
+            if d.get('price', 0) >= 100
+            and d.get('discount_pct', 0) >= 20
         ]
 
-        sorted_deals = sorted(filtered, key=lambda x: x['scores']['total'], reverse=True)
+        sorted_deals = sorted(filtered, key=lambda x: x['price'], reverse=True)
         return [d['id'] for d in sorted_deals[:limit]]
 
     def build_all_collections(self, deals: List[Dict]) -> Dict[str, List[str]]:
