@@ -1,16 +1,24 @@
-@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Rockwell&family=Kalam:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;600;700&family=Bebas+Neue&display=swap');
 
 :root {
-    --burnt-orange: #d35400;
-    --mustard: #f39c12;
-    --chocolate: #5d4037;
-    --cream: #fef5e7;
-    --warm-white: #fdf6e3;
-    --paper-tan: #f4e8d8;
-    --ink-black: #2c1810;
-    --stamp-red: #c0392b;
-    --vintage-blue: #34495e;
-    --faded-green: #6c7a59;
+    /* Retro-Future Color System */
+    --electric-blue: #00f0ff;
+    --hot-pink: #ff006e;
+    --lime-green: #ccff00;
+    --deep-charcoal: #1a1a2e;
+    --off-white: #f4f4f9;
+    --warm-cream: #fffef2;
+    --neon-purple: #9d4edd;
+    --sunshine-yellow: #ffd60a;
+
+    /* Type Scale */
+    --text-xs: 0.7rem;
+    --text-sm: 0.85rem;
+    --text-base: 0.95rem;
+    --text-lg: 1.1rem;
+    --text-xl: 1.4rem;
+    --text-2xl: 1.8rem;
+    --text-3xl: 2.4rem;
 }
 
 * {
@@ -20,28 +28,25 @@
 }
 
 body {
-    font-family: 'Courier Prime', monospace;
-    background: var(--warm-white);
+    font-family: 'IBM Plex Mono', monospace;
+    background: var(--warm-cream);
     background-image:
-        url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E"),
-        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(93, 64, 55, 0.02) 2px, rgba(93, 64, 55, 0.02) 4px);
-    color: var(--ink-black);
+        repeating-linear-gradient(90deg, transparent 0px, transparent 49px, rgba(26, 26, 46, 0.03) 49px, rgba(26, 26, 46, 0.03) 50px),
+        repeating-linear-gradient(0deg, transparent 0px, transparent 49px, rgba(26, 26, 46, 0.03) 49px, rgba(26, 26, 46, 0.03) 50px);
+    color: var(--deep-charcoal);
     min-height: 100vh;
+    line-height: 1.5;
 }
 
-/* Top Navigation - Vintage Newspaper Header */
+/* Compact Top Navigation */
 .top-nav {
-    background: linear-gradient(180deg, var(--paper-tan) 0%, var(--cream) 100%);
-    padding: 2rem 2.5rem 1.5rem 2.5rem;
-    box-shadow: 0 4px 0 var(--chocolate), 0 8px 20px rgba(93, 64, 55, 0.2);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    background: var(--deep-charcoal);
+    padding: 1.2rem 2rem;
+    border-bottom: 4px solid var(--electric-blue);
     position: sticky;
     top: 0;
     z-index: 100;
-    border-bottom: 4px double var(--chocolate);
-    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 240, 255, 0.3);
 }
 
 .top-nav::before {
@@ -50,102 +55,117 @@ body {
     top: 0;
     left: 0;
     right: 0;
-    height: 8px;
-    background: repeating-linear-gradient(90deg, var(--burnt-orange) 0px, var(--burnt-orange) 20px, var(--mustard) 20px, var(--mustard) 40px);
+    height: 3px;
+    background: linear-gradient(90deg, var(--hot-pink) 0%, var(--electric-blue) 50%, var(--lime-green) 100%);
 }
 
-.top-nav h1 {
-    font-family: 'Rockwell', serif;
-    font-size: 2.5rem;
-    font-weight: 900;
-    color: var(--ink-black);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    text-shadow: 3px 3px 0 rgba(211, 84, 0, 0.2);
-    position: relative;
-    line-height: 1.2;
-}
-
-.top-nav h1::after {
-    content: 'SPECIAL EDITION';
-    position: absolute;
-    bottom: -20px;
-    left: 0;
-    font-size: 0.35em;
-    letter-spacing: 4px;
-    color: var(--stamp-red);
+.nav-left h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: var(--text-2xl);
     font-weight: 400;
+    color: var(--off-white);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    line-height: 1;
+    position: relative;
+    padding-left: 3rem;
+}
+
+.nav-left h1::before {
+    content: '🛍️';
+    position: absolute;
+    left: 0;
+    font-size: 1.5em;
+    filter: drop-shadow(0 0 10px var(--electric-blue));
+}
+
+.nav-left h1::after {
+    content: '2025 EDITION';
+    position: absolute;
+    bottom: -12px;
+    left: 3rem;
+    font-size: 0.3em;
+    letter-spacing: 4px;
+    color: var(--lime-green);
+    font-family: 'IBM Plex Mono', monospace;
 }
 
 .nav-right {
     display: flex;
-    gap: 2rem;
+    gap: 1rem;
     align-items: center;
 }
 
 .refresh-btn {
-    background: var(--burnt-orange);
-    color: var(--cream);
-    border: 3px solid var(--ink-black);
-    padding: 0.85rem 1.8rem;
-    border-radius: 2px;
+    background: var(--electric-blue);
+    color: var(--deep-charcoal);
+    border: none;
+    padding: 0.7rem 1.5rem;
     cursor: pointer;
     display: flex;
-    gap: 0.7rem;
+    gap: 0.6rem;
     align-items: center;
-    font-size: 0.95rem;
+    font-size: var(--text-sm);
     font-weight: 700;
-    font-family: 'Rockwell', serif;
+    font-family: 'IBM Plex Mono', monospace;
     text-transform: uppercase;
     letter-spacing: 1px;
     transition: all 0.2s ease;
-    box-shadow: 4px 4px 0 var(--chocolate), 8px 8px 20px rgba(0, 0, 0, 0.15);
     position: relative;
-    transform: rotate(-1deg);
+    overflow: hidden;
+}
+
+.refresh-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+}
+
+.refresh-btn:hover::before {
+    left: 100%;
 }
 
 .refresh-btn:hover {
-    transform: rotate(0deg) translateY(-2px);
-    box-shadow: 5px 5px 0 var(--chocolate), 10px 10px 25px rgba(0, 0, 0, 0.2);
-}
-
-.refresh-btn:active {
-    transform: rotate(0deg) translateY(0);
-    box-shadow: 2px 2px 0 var(--chocolate), 4px 4px 10px rgba(0, 0, 0, 0.2);
+    background: var(--lime-green);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(204, 255, 0, 0.4);
 }
 
 .refresh-btn.loading {
-    background: var(--vintage-blue);
+    background: var(--neon-purple);
+    color: var(--off-white);
     cursor: not-allowed;
-    animation: stamp-pulse 1.2s ease-in-out infinite;
+    animation: pulse-glow 1.5s ease-in-out infinite;
 }
 
-@keyframes stamp-pulse {
-    0%, 100% { opacity: 0.7; transform: rotate(-1deg); }
-    50% { opacity: 1; transform: rotate(1deg); }
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 10px rgba(157, 78, 237, 0.6); }
+    50% { box-shadow: 0 0 25px rgba(157, 78, 237, 1); }
 }
 
 .last-updated, .deal-count {
-    font-size: 0.8rem;
-    color: var(--chocolate);
-    font-weight: 700;
+    font-size: var(--text-xs);
+    color: var(--off-white);
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    background: var(--mustard);
-    padding: 0.4rem 0.8rem;
-    border: 2px solid var(--ink-black);
-    box-shadow: 2px 2px 0 var(--chocolate);
-    transform: rotate(1deg);
+    letter-spacing: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.5rem 0.9rem;
+    border-left: 3px solid var(--hot-pink);
+    backdrop-filter: blur(10px);
 }
 
-/* Progress Bar - Vintage Loading */
+/* Progress Bar */
 .progress-bar {
-    background: var(--paper-tan);
-    height: 8px;
+    background: var(--deep-charcoal);
+    height: 6px;
     position: relative;
     overflow: hidden;
-    border-top: 2px solid var(--chocolate);
-    border-bottom: 2px solid var(--chocolate);
 }
 
 .progress-bar.hidden {
@@ -153,146 +173,148 @@ body {
 }
 
 .progress-fill {
-    background: repeating-linear-gradient(45deg, var(--burnt-orange), var(--burnt-orange) 10px, var(--mustard) 10px, var(--mustard) 20px);
+    background: linear-gradient(90deg, var(--hot-pink), var(--electric-blue), var(--lime-green));
+    background-size: 200% 100%;
     height: 100%;
-    width: 0%;
-    transition: width 0.3s;
-    animation: diagonal-march 0.8s linear infinite;
+    width: 100%;
+    animation: gradient-shift 2s linear infinite;
 }
 
-@keyframes diagonal-march {
-    0% { background-position: 0 0; }
-    100% { background-position: 20px 0; }
+@keyframes gradient-shift {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 200% 0%; }
 }
 
-#progress-text {
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.75rem;
-    color: var(--stamp-red);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-weight: 700;
-}
-
-/* Main Layout */
+/* Compact Main Layout */
 .main-container {
     display: grid;
-    grid-template-columns: 320px 1fr;
-    gap: 2.5rem;
-    padding: 2.5rem;
-    max-width: 1900px;
+    grid-template-columns: 260px 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    max-width: 2000px;
     margin: 0 auto;
 }
 
-/* Sidebar - Bulletin Board Style */
+/* Compact Sidebar */
 .sidebar {
-    background: var(--paper-tan);
-    padding: 2rem;
-    border-radius: 4px;
-    border: 3px solid var(--chocolate);
-    box-shadow: inset 0 0 50px rgba(93, 64, 55, 0.1), 6px 6px 0 rgba(93, 64, 55, 0.2);
+    background: var(--off-white);
+    padding: 1.5rem;
+    border: 2px solid var(--deep-charcoal);
+    border-radius: 0;
     height: fit-content;
     position: sticky;
-    top: 140px;
-    transform: rotate(-0.5deg);
+    top: 100px;
+    box-shadow: 8px 8px 0 rgba(0, 240, 255, 0.2);
 }
 
 .sidebar h2 {
-    font-family: 'Rockwell', serif;
-    font-size: 1.3rem;
-    margin-bottom: 1.5rem;
-    color: var(--ink-black);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: var(--text-xl);
+    margin-bottom: 1rem;
+    color: var(--deep-charcoal);
     text-transform: uppercase;
     letter-spacing: 2px;
-    border-bottom: 3px solid var(--burnt-orange);
+    border-bottom: 3px solid var(--electric-blue);
     padding-bottom: 0.5rem;
 }
 
 .collection-list {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    margin-bottom: 2rem;
+    gap: 0.6rem;
+    margin-bottom: 1.5rem;
 }
 
 .collection-btn {
-    background: var(--cream);
-    border: 2px solid var(--chocolate);
-    padding: 0.9rem 1.2rem;
-    border-radius: 2px;
+    background: var(--warm-cream);
+    border: 2px solid var(--deep-charcoal);
+    padding: 0.7rem 1rem;
     cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    transition: all 0.2s ease;
-    font-family: 'Courier Prime', monospace;
-    color: var(--ink-black);
-    font-size: 0.9rem;
-    font-weight: 700;
-    box-shadow: 3px 3px 0 rgba(93, 64, 55, 0.3);
+    transition: all 0.15s ease;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--deep-charcoal);
+    font-size: var(--text-sm);
+    font-weight: 600;
     position: relative;
 }
 
+.collection-btn::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    background: var(--electric-blue);
+    transition: width 0.2s ease;
+}
+
+.collection-btn:hover::before {
+    width: 4px;
+}
+
 .collection-btn:hover {
-    background: var(--mustard);
-    transform: translateX(3px) translateY(-2px);
-    box-shadow: 5px 5px 0 rgba(93, 64, 55, 0.3);
+    transform: translateX(4px);
+    border-color: var(--electric-blue);
 }
 
 .collection-btn.active {
-    background: var(--burnt-orange);
-    color: var(--cream);
-    border-color: var(--ink-black);
-    box-shadow: 4px 4px 0 var(--chocolate), inset 0 0 20px rgba(0, 0, 0, 0.2);
-    transform: rotate(-1deg);
+    background: var(--deep-charcoal);
+    color: var(--off-white);
+    border-color: var(--lime-green);
+    box-shadow: inset 0 0 20px rgba(204, 255, 0, 0.2);
+}
+
+.collection-btn.active::before {
+    width: 100%;
+    background: var(--lime-green);
 }
 
 .collection-count {
-    background: var(--ink-black);
-    color: var(--cream);
-    padding: 0.3rem 0.7rem;
-    border-radius: 2px;
-    font-size: 0.75rem;
+    background: var(--hot-pink);
+    color: var(--off-white);
+    padding: 0.2rem 0.6rem;
+    font-size: var(--text-xs);
     font-weight: 700;
-    font-family: 'Rockwell', serif;
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 1px;
 }
 
 .collection-btn.active .collection-count {
-    background: var(--cream);
-    color: var(--burnt-orange);
+    background: var(--lime-green);
+    color: var(--deep-charcoal);
 }
 
-/* Filters - Vintage Control Panel */
+/* Compact Filters */
 .filters-section {
-    border-top: 3px solid var(--chocolate);
-    padding-top: 1.5rem;
+    border-top: 2px solid var(--deep-charcoal);
+    padding-top: 1rem;
 }
 
 .filters-section h3 {
-    font-family: 'Rockwell', serif;
-    font-size: 1rem;
-    margin-bottom: 1.2rem;
-    color: var(--ink-black);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: var(--text-lg);
+    margin-bottom: 1rem;
+    color: var(--deep-charcoal);
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
 .filter-group {
-    margin-bottom: 1.5rem;
-    background: rgba(255, 255, 255, 0.5);
-    padding: 1rem;
-    border: 2px dashed var(--chocolate);
-    border-radius: 2px;
+    margin-bottom: 1.2rem;
+    background: var(--warm-cream);
+    padding: 0.8rem;
+    border: 2px solid var(--deep-charcoal);
 }
 
 .filter-group label {
     display: block;
-    font-size: 0.8rem;
-    margin-bottom: 0.7rem;
-    color: var(--chocolate);
+    font-size: var(--text-xs);
+    margin-bottom: 0.6rem;
+    color: var(--deep-charcoal);
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 700;
@@ -301,233 +323,225 @@ body {
 .filter-group input[type="range"] {
     width: 100%;
     margin-bottom: 0.5rem;
-    height: 6px;
-    background: var(--chocolate);
-    border-radius: 0;
+    height: 4px;
+    background: var(--deep-charcoal);
     outline: none;
     -webkit-appearance: none;
-    border: 1px solid var(--ink-black);
 }
 
 .filter-group input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 20px;
-    height: 20px;
-    background: var(--burnt-orange);
-    border-radius: 0;
+    width: 16px;
+    height: 16px;
+    background: var(--electric-blue);
     cursor: pointer;
-    border: 2px solid var(--ink-black);
-    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--deep-charcoal);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
 }
 
 .filter-group input[type="range"]::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    background: var(--burnt-orange);
-    border-radius: 0;
+    width: 16px;
+    height: 16px;
+    background: var(--electric-blue);
     cursor: pointer;
-    border: 2px solid var(--ink-black);
-    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--deep-charcoal);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
 }
 
-/* Deals Grid - Polaroid Collage */
+/* Dense Magazine Grid - More Deals Visible */
 .deals-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.2rem;
+    align-items: start;
 }
 
 .empty-state {
     grid-column: 1 / -1;
     text-align: center;
-    padding: 5rem 2rem;
-    color: var(--chocolate);
+    padding: 4rem 2rem;
+    color: var(--deep-charcoal);
 }
 
 .empty-state h2 {
-    font-family: 'Rockwell', serif;
-    color: var(--burnt-orange);
-    margin-bottom: 1rem;
-    font-size: 2rem;
+    font-family: 'Bebas Neue', sans-serif;
+    color: var(--hot-pink);
+    margin-bottom: 0.8rem;
+    font-size: var(--text-3xl);
 }
 
-/* Deal Card - Vintage Product Card */
+/* Compact Deal Card - Magazine Style */
+.deal-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
 .deal-card {
-    background: var(--cream);
-    border-radius: 2px;
-    overflow: visible;
-    border: 4px solid var(--ink-black);
+    background: var(--off-white);
+    overflow: hidden;
+    border: 3px solid var(--deep-charcoal);
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.2s ease;
     position: relative;
-    box-shadow: 8px 8px 0 rgba(93, 64, 55, 0.4), 12px 12px 30px rgba(0, 0, 0, 0.15);
-    transform: rotate(var(--card-rotation, 0deg));
-}
-
-.deal-card:nth-child(odd) {
-    --card-rotation: -1deg;
-}
-
-.deal-card:nth-child(even) {
-    --card-rotation: 1deg;
-}
-
-.deal-card:nth-child(3n) {
-    --card-rotation: -0.5deg;
+    box-shadow: 6px 6px 0 rgba(26, 26, 46, 0.1);
 }
 
 .deal-card::before {
     content: '';
     position: absolute;
-    top: -8px;
-    right: 20%;
-    width: 50px;
-    height: 20px;
-    background: var(--mustard);
-    border: 2px solid var(--chocolate);
-    border-radius: 2px;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-    transform: rotate(-2deg);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--hot-pink), var(--electric-blue));
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
     z-index: 10;
 }
 
+.deal-card:hover::before {
+    transform: scaleX(1);
+}
+
 .deal-card:hover {
-    transform: rotate(0deg) translateY(-12px) scale(1.03);
-    box-shadow: 12px 12px 0 rgba(93, 64, 55, 0.5), 20px 20px 40px rgba(0, 0, 0, 0.25);
-    z-index: 10;
+    transform: translateY(-4px);
+    box-shadow: 8px 8px 0 rgba(0, 240, 255, 0.3), 0 10px 30px rgba(0, 0, 0, 0.15);
+    border-color: var(--electric-blue);
 }
 
 .deal-image {
     width: 100%;
-    height: 260px;
+    height: 180px;
     object-fit: cover;
-    background: var(--paper-tan);
-    border-bottom: 3px solid var(--chocolate);
-    filter: sepia(0.15) contrast(1.1);
+    background: var(--warm-cream);
+    border-bottom: 2px solid var(--deep-charcoal);
+    filter: contrast(1.05) brightness(1.02);
 }
 
 .deal-content {
-    padding: 1.5rem;
-    background: var(--cream);
+    padding: 1rem;
+    background: var(--off-white);
 }
 
 .deal-title {
-    font-size: 1rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    margin-bottom: 0.8rem;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    color: var(--ink-black);
-    line-height: 1.5;
-    font-family: 'Courier Prime', monospace;
+    color: var(--deep-charcoal);
+    line-height: 1.4;
+    font-family: 'IBM Plex Mono', monospace;
+    min-height: 2.8rem;
 }
 
 .deal-price {
     display: flex;
-    align-items: baseline;
-    gap: 1rem;
-    margin-bottom: 1rem;
+    align-items: center;
+    gap: 0.7rem;
+    margin-bottom: 0.8rem;
     flex-wrap: wrap;
 }
 
 .price-current {
-    font-size: 2.2rem;
-    font-weight: 900;
-    font-family: 'Rockwell', serif;
-    color: var(--stamp-red);
-    text-shadow: 2px 2px 0 rgba(192, 57, 43, 0.2);
+    font-size: var(--text-xl);
+    font-weight: 700;
+    font-family: 'Bebas Neue', sans-serif;
+    color: var(--deep-charcoal);
+    letter-spacing: 1px;
 }
 
 .price-original {
-    font-size: 1rem;
+    font-size: var(--text-sm);
     text-decoration: line-through;
-    color: var(--chocolate);
-    opacity: 0.7;
-    font-family: 'Courier Prime', monospace;
+    color: rgba(26, 26, 46, 0.5);
+    font-family: 'IBM Plex Mono', monospace;
 }
 
 .discount-badge {
-    background: var(--stamp-red);
-    color: var(--cream);
-    padding: 0.5rem 0.9rem;
-    border-radius: 50%;
-    font-size: 0.9rem;
-    font-weight: 900;
-    font-family: 'Rockwell', serif;
+    background: var(--hot-pink);
+    color: var(--off-white);
+    padding: 0.3rem 0.6rem;
+    font-size: var(--text-xs);
+    font-weight: 700;
+    font-family: 'Bebas Neue', sans-serif;
     text-transform: uppercase;
-    letter-spacing: 0;
-    border: 3px solid var(--ink-black);
-    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(0, 0, 0, 0.2);
-    transform: rotate(-15deg);
+    letter-spacing: 1px;
+    border: 2px solid var(--deep-charcoal);
+    box-shadow: 3px 3px 0 rgba(255, 0, 110, 0.3);
     position: relative;
+    margin-left: auto;
 }
 
 .discount-badge::before {
     content: 'SALE';
     position: absolute;
-    top: -8px;
+    top: -10px;
     left: 50%;
     transform: translateX(-50%);
     font-size: 0.5em;
-    letter-spacing: 1px;
+    background: var(--sunshine-yellow);
+    color: var(--deep-charcoal);
+    padding: 0.2rem 0.4rem;
+    border: 1px solid var(--deep-charcoal);
 }
 
 .deal-rating {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.85rem;
-    color: var(--faded-green);
-    margin-bottom: 0.7rem;
-    font-family: 'Courier Prime', monospace;
+    gap: 0.4rem;
+    font-size: var(--text-xs);
+    color: var(--deep-charcoal);
+    margin-bottom: 0.6rem;
+    font-family: 'IBM Plex Mono', monospace;
 }
 
 .deal-retailer {
-    font-size: 0.75rem;
-    color: var(--chocolate);
+    font-size: var(--text-xs);
+    color: rgba(26, 26, 46, 0.7);
     text-transform: uppercase;
     letter-spacing: 2px;
-    margin-top: 0.8rem;
+    margin-top: 0.6rem;
     font-weight: 700;
-    font-family: 'Courier Prime', monospace;
+    font-family: 'IBM Plex Mono', monospace;
+    border-top: 1px solid rgba(26, 26, 46, 0.1);
+    padding-top: 0.6rem;
 }
 
 .score-badge {
     position: absolute;
-    top: 20px;
-    right: 20px;
-    padding: 0.7rem 1rem;
-    border-radius: 50%;
-    font-weight: 900;
-    font-size: 1.2rem;
-    font-family: 'Rockwell', serif;
-    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3), 8px 8px 20px rgba(0, 0, 0, 0.2);
-    border: 4px solid var(--ink-black);
+    top: 12px;
+    right: 12px;
+    padding: 0.5rem 0.7rem;
+    font-weight: 700;
+    font-size: var(--text-lg);
+    font-family: 'Bebas Neue', sans-serif;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
+    border: 3px solid var(--deep-charcoal);
     z-index: 5;
+    letter-spacing: 1px;
 }
 
 .score-badge.excellent {
-    background: var(--faded-green);
-    color: var(--cream);
-    transform: rotate(15deg);
+    background: var(--lime-green);
+    color: var(--deep-charcoal);
 }
 
 .score-badge.good {
-    background: var(--vintage-blue);
-    color: var(--cream);
-    transform: rotate(-12deg);
+    background: var(--electric-blue);
+    color: var(--deep-charcoal);
 }
 
 .score-badge.mediocre {
-    background: var(--mustard);
-    color: var(--ink-black);
-    transform: rotate(8deg);
+    background: var(--sunshine-yellow);
+    color: var(--deep-charcoal);
 }
 
-/* Modal - Vintage Overlay */
+/* Modal */
 .modal {
     display: none;
     position: fixed;
@@ -536,15 +550,15 @@ body {
     top: 0;
     width: 100%;
     height: 100%;
-    background: rgba(44, 24, 16, 0.9);
-    backdrop-filter: blur(4px);
+    background: rgba(26, 26, 46, 0.95);
+    backdrop-filter: blur(8px);
 }
 
 .modal.show {
     display: flex;
     align-items: center;
     justify-content: center;
-    animation: fadeIn 0.3s ease;
+    animation: fadeIn 0.2s ease;
 }
 
 @keyframes fadeIn {
@@ -553,101 +567,82 @@ body {
 }
 
 .modal-content {
-    background: var(--cream);
-    padding: 3rem;
-    border-radius: 4px;
+    background: var(--off-white);
+    padding: 2.5rem;
     max-width: 900px;
     max-height: 90vh;
     overflow-y: auto;
     position: relative;
-    border: 6px solid var(--ink-black);
-    box-shadow: 12px 12px 0 rgba(93, 64, 55, 0.6), 20px 20px 50px rgba(0, 0, 0, 0.3);
-    animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 4px solid var(--electric-blue);
+    box-shadow: 0 0 60px rgba(0, 240, 255, 0.5), 12px 12px 0 rgba(0, 240, 255, 0.3);
+    animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 @keyframes slideUp {
-    from { transform: translateY(100px) scale(0.9); opacity: 0; }
+    from { transform: translateY(50px) scale(0.95); opacity: 0; }
     to { transform: translateY(0) scale(1); opacity: 1; }
 }
 
 .close-btn {
     position: absolute;
-    top: 1.5rem;
-    right: 1.5rem;
-    font-size: 2.5rem;
+    top: 1rem;
+    right: 1rem;
+    font-size: 2rem;
     cursor: pointer;
-    color: var(--stamp-red);
+    color: var(--deep-charcoal);
     transition: all 0.2s ease;
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
-    background: var(--mustard);
-    border: 3px solid var(--ink-black);
-    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
-    font-weight: 900;
+    background: var(--hot-pink);
+    border: 3px solid var(--deep-charcoal);
+    box-shadow: 4px 4px 0 rgba(255, 0, 110, 0.3);
+    font-weight: 700;
+    font-family: 'Bebas Neue', sans-serif;
 }
 
 .close-btn:hover {
-    background: var(--stamp-red);
-    color: var(--cream);
+    background: var(--electric-blue);
     transform: rotate(90deg) scale(1.1);
-    box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.4);
+    box-shadow: 6px 6px 0 rgba(0, 240, 255, 0.4);
 }
 
-/* Deal Card Link Wrapper */
-.deal-card-link {
-    text-decoration: none;
-    color: inherit;
-    display: block;
-}
-
-.deal-card-link:hover,
-.deal-card-link:focus,
-.deal-card-link:active,
-.deal-card-link:visited {
-    text-decoration: none;
-    color: inherit;
-}
-
-/* Scrollbar - Vintage Style */
+/* Scrollbar */
 ::-webkit-scrollbar {
-    width: 14px;
+    width: 12px;
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--paper-tan);
-    border-left: 2px solid var(--chocolate);
+    background: var(--warm-cream);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--burnt-orange);
-    border: 2px solid var(--ink-black);
-    border-radius: 0;
+    background: var(--deep-charcoal);
+    border: 2px solid var(--warm-cream);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--stamp-red);
+    background: var(--electric-blue);
 }
 
-/* Handwritten Annotations */
-.deal-card::after {
-    content: attr(data-annotation);
-    position: absolute;
-    bottom: -15px;
-    left: -10px;
-    font-family: 'Kalam', cursive;
-    font-size: 1.1rem;
-    color: var(--stamp-red);
-    transform: rotate(-5deg);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8);
-}
+/* Responsive - Stack on mobile */
+@media (max-width: 768px) {
+    .main-container {
+        grid-template-columns: 1fr;
+    }
 
-.deal-card:hover::after {
-    opacity: 1;
+    .sidebar {
+        position: static;
+    }
+
+    .deals-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1rem;
+    }
+
+    .nav-left h1 {
+        font-size: var(--text-xl);
+    }
 }
