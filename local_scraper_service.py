@@ -23,6 +23,7 @@ import hmac
 import hashlib
 from datetime import datetime
 import subprocess
+import threading
 from scrapers.orchestrator import ScrapingOrchestrator
 
 app = Flask(__name__)
@@ -70,7 +71,9 @@ def trigger_scrape():
     print(f"{'='*60}\n")
 
     # Start scraping in background (don't block webhook response)
-    asyncio.create_task(run_scraping_workflow())
+    thread = threading.Thread(target=lambda: asyncio.run(run_scraping_workflow()))
+    thread.daemon = True
+    thread.start()
 
     return jsonify({
         'status': 'accepted',
@@ -127,13 +130,14 @@ async def run_scraping_workflow():
         traceback.print_exc()
 
 if __name__ == '__main__':
+    PORT = int(os.getenv('PORT', '5002'))
     print("\n" + "="*60)
     print("LOCAL SCRAPER SERVICE")
     print("="*60)
     print(f"Webhook secret configured: {'✅' if WEBHOOK_SECRET != 'dev-secret-key-change-me' else '⚠️ Using default'}")
     print(f"GitHub token configured: {'✅' if GITHUB_TOKEN else '❌ Not configured'}")
-    print(f"Listening on: http://0.0.0.0:5001")
+    print(f"Listening on: http://0.0.0.0:{PORT}")
     print("="*60 + "\n")
 
     # Run Flask (asyncio tasks work fine with Flask)
-    app.run(host='0.0.0.0', port=5001, debug=False)
+    app.run(host='0.0.0.0', port=PORT, debug=False)

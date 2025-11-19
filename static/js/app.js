@@ -239,11 +239,94 @@ async function startRefresh() {
 
     refreshBtn.classList.add('loading');
     refreshIcon.textContent = '⏳';
-    refreshText.textContent = 'Starting scraper...';
+    refreshText.textContent = 'Starting local scraper...';
     progressBar.classList.remove('hidden');
 
-    // Trigger scraping via WebSocket (runs on Render directly)
-    socket.emit('start_refresh');
+    try {
+        // Trigger scraping via webhook to local machine
+        const response = await fetch('/api/trigger-local-scrape', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        const result = await response.json();
+
+        if (response.status === 202) {
+            refreshText.textContent = 'Scraper running on local machine...';
+            // Poll for updates since we don't have real-time feedback
+            pollForUpdates();
+        } else {
+            refreshBtn.classList.remove('loading');
+            refreshIcon.textContent = '❌';
+            refreshText.textContent = result.message || 'Error triggering scraper';
+            progressBar.classList.add('hidden');
+
+            setTimeout(() => {
+                refreshIcon.textContent = '🔄';
+                refreshText.textContent = 'Refresh Deals';
+            }, 3000);
+        }
+    } catch (error) {
+        console.error('Failed to trigger scraper:', error);
+        refreshBtn.classList.remove('loading');
+        refreshIcon.textContent = '❌';
+        refreshText.textContent = 'Local machine offline';
+        progressBar.classList.add('hidden');
+
+        setTimeout(() => {
+            refreshIcon.textContent = '🔄';
+            refreshText.textContent = 'Refresh Deals';
+        }, 3000);
+    }
+}
+
+function pollForUpdates() {
+    // Poll every 10 seconds for new data
+    const pollInterval = setInterval(async () => {
+        try {
+            const response = await fetch('/api/deals');
+            const data = await response.json();
+
+            if (data.last_updated) {
+                const lastUpdateTime = new Date(data.last_updated);
+                const timeSinceUpdate = Date.now() - lastUpdateTime;
+
+                // If data was updated in the last 30 seconds, scraping is complete
+                if (timeSinceUpdate < 30000) {
+                    clearInterval(pollInterval);
+                    refreshBtn.classList.remove('loading');
+                    refreshIcon.textContent = '✓';
+                    refreshText.textContent = 'Refresh Complete';
+                    progressBar.classList.add('hidden');
+
+                    setTimeout(() => {
+                        refreshIcon.textContent = '🔄';
+                        refreshText.textContent = 'Refresh Deals';
+                    }, 2000);
+
+                    loadDeals();
+                }
+            }
+        } catch (error) {
+            console.error('Poll error:', error);
+        }
+    }, 10000);
+
+    // Stop polling after 5 minutes
+    setTimeout(() => {
+        clearInterval(pollInterval);
+        if (refreshBtn.classList.contains('loading')) {
+            refreshBtn.classList.remove('loading');
+            refreshIcon.textContent = '⏱️';
+            refreshText.textContent = 'Timed out - check local machine';
+            progressBar.classList.add('hidden');
+
+            setTimeout(() => {
+                refreshIcon.textContent = '🔄';
+                refreshText.textContent = 'Refresh Deals';
+            }, 3000);
+        }
+    }, 300000);
 }
 
 function formatTimeAgo(date) {
