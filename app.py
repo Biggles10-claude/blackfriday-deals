@@ -15,7 +15,10 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 CACHE_FILE = 'data/deals_cache.json'
 GITHUB_RAW_URL = 'https://raw.githubusercontent.com/Biggles10-claude/blackfriday-deals/main/data/deals_cache.json'
-LOCAL_WEBHOOK_URL = os.getenv('LOCAL_WEBHOOK_URL', 'https://claude-workspace.taildc3fd3.ts.net')
+LOCAL_WEBHOOK_URL = os.getenv('LOCAL_TAILSCALE_IP', 'https://claude-workspace.taildc3fd3.ts.net')
+# Support both IP format (100.83.37.54) and full URL format
+if not LOCAL_WEBHOOK_URL.startswith('http'):
+    LOCAL_WEBHOOK_URL = f'http://{LOCAL_WEBHOOK_URL}:5001'
 WEBHOOK_SECRET = os.getenv('WEBHOOK_SECRET', 'dev-secret-key-change-me')
 
 def progress_callback(data):
