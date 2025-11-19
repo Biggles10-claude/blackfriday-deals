@@ -3,7 +3,8 @@ const socket = io();
 
 // State
 let allDeals = [];
-let currentCollection = 'best_overall';
+let categories = {};
+let currentCategory = null;
 let filters = {
     minDiscount: 0,
     minRating: 0
@@ -31,19 +32,6 @@ setupEventListeners();
 function setupEventListeners() {
     // Refresh button
     refreshBtn.addEventListener('click', startRefresh);
-
-    // Collection buttons
-    document.querySelectorAll('.collection-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            currentCollection = btn.dataset.collection;
-
-            // Update active state
-            document.querySelectorAll('.collection-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            renderDeals();
-        });
-    });
 
     // Filters
     discountFilter.addEventListener('input', (e) => {
@@ -104,6 +92,7 @@ async function loadDeals() {
         const data = await response.json();
 
         allDeals = data.deals || [];
+        categories = data.categories || {};
 
         // Update last updated
         if (data.last_updated) {
@@ -111,27 +100,46 @@ async function loadDeals() {
             lastUpdated.textContent = `Updated ${formatTimeAgo(date)}`;
         }
 
-        // Update collection counts
-        if (data.collections) {
-            Object.keys(data.collections).forEach(key => {
-                const countEl = document.querySelector(`[data-count="${key}"]`);
-                if (countEl) {
-                    countEl.textContent = data.collections[key].length;
-                }
-            });
+        // Render category buttons
+        renderCategoryButtons();
+
+        // Set first category as default
+        if (!currentCategory && Object.keys(categories).length > 0) {
+            currentCategory = Object.keys(categories)[0];
         }
 
-        window.collections = data.collections || {};
         renderDeals();
     } catch (error) {
         console.error('Failed to load deals:', error);
     }
 }
 
+function renderCategoryButtons() {
+    const categoryList = document.getElementById('category-list');
+    const sortedCategories = Object.keys(categories).sort();
+
+    categoryList.innerHTML = sortedCategories.map(category => `
+        <button class="collection-btn ${category === currentCategory ? 'active' : ''}"
+                data-category="${category}"
+                onclick="selectCategory('${category}')">
+            <span class="collection-name">${category}</span>
+            <span class="collection-count">${categories[category].length}</span>
+        </button>
+    `).join('');
+}
+
+function selectCategory(category) {
+    currentCategory = category;
+    document.querySelectorAll('.collection-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.category === category);
+    });
+    renderDeals();
+}
+
 function renderDeals() {
-    // Get deals for current collection
-    const collectionDealIds = window.collections[currentCollection] || [];
-    let deals = allDeals.filter(d => collectionDealIds.includes(d.id));
+    // Get deals for current category
+    const categoryDealIds = categories[currentCategory] || [];
+    let deals = allDeals.filter(d => categoryDealIds.includes(d.id));
 
     // Apply filters
     deals = deals.filter(d => {

@@ -2,7 +2,7 @@ import asyncio
 from typing import List, Dict, Callable
 from scrapers.amazon_au import AmazonAUScraper
 from analyzer.scorer import DealScorer
-from analyzer.collections import CollectionBuilder
+from analyzer.categories import CategoryOrganizer
 import json
 from datetime import datetime, timezone
 
@@ -15,7 +15,7 @@ class ScrapingOrchestrator:
             # Add more scrapers here: JBHiFiScraper(), etc.
         ]
         self.scorer = DealScorer()
-        self.collection_builder = CollectionBuilder()
+        self.category_organizer = CategoryOrganizer()
         self.progress_callback = progress_callback
 
     async def scrape_retailer(self, scraper) -> List[Dict]:
@@ -63,11 +63,13 @@ class ScrapingOrchestrator:
         for deal in all_deals:
             deal['scores'] = self.scorer.score_deal(deal)
 
-        # Build collections
-        collections = self.collection_builder.build_all_collections(all_deals)
+        # Organize by categories
+        categories = self.category_organizer.organize_by_category(all_deals)
+        category_stats = self.category_organizer.get_category_stats(all_deals)
 
         return {
             'last_updated': datetime.now(timezone.utc).isoformat(),
             'deals': all_deals,
-            'collections': collections
+            'categories': categories,
+            'category_stats': category_stats
         }

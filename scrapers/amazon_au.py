@@ -9,13 +9,16 @@ class AmazonAUScraper(BaseScraper):
     def __init__(self):
         super().__init__('Amazon AU')
         self.base_url = 'https://www.amazon.com.au'
-        # Search for Black Friday deals with discount filter
+        # Product categories for Black Friday deals
         self.deals_categories = [
+            ('gaming', 'Gaming'),
             ('electronics', 'Electronics'),
+            ('home & kitchen', 'Home & Kitchen'),
+            ('sports & fitness', 'Sports & Fitness'),
             ('computers & accessories', 'Computers'),
-            ('home & kitchen', 'Home'),
-            ('sports & outdoors', 'Sports'),
-            ('toys & games', 'Toys')
+            ('smart home', 'Smart Home'),
+            ('beauty & personal care', 'Beauty & Personal Care'),
+            ('tools & home improvement', 'Tools & DIY')
         ]
 
     def parse_product_card(self, card) -> Optional[Dict]:
@@ -96,19 +99,20 @@ class AmazonAUScraper(BaseScraper):
             traceback.print_exc()
             return None
 
-    async def scrape(self, pages_per_category: int = 2) -> List[Dict]:
+    async def scrape(self, pages_per_category: int = 3) -> List[Dict]:
         """Scrape discounted deals from Amazon AU (filtering for 10%+ discounts)
 
         Args:
-            pages_per_category: Number of pages per category (default 2 = ~100 products per category)
+            pages_per_category: Number of pages per category (default 3 = ~100 deals per category)
         """
-        print(f"[{self.retailer_name}] Scraping deals with discounts from {len(self.deals_categories)} categories...")
+        print(f"[{self.retailer_name}] Scraping deals from {len(self.deals_categories)} categories...")
 
         all_deals = []
         seen_asins = set()
 
         for search_term, category_name in self.deals_categories:
-            print(f"[{self.retailer_name}] Category: {category_name}")
+            print(f"\n[{self.retailer_name}] === {category_name} ===")
+            category_deals = 0
 
             for page_num in range(1, pages_per_category + 1):
                 # Search with "deal" keyword to prioritize discounted items
@@ -121,9 +125,9 @@ class AmazonAUScraper(BaseScraper):
 
                 soup = BeautifulSoup(html, 'html.parser')
                 product_cards = soup.select('[data-asin]:not([data-asin=""])')
-                print(f"[{self.retailer_name}] Page {page_num}: Found {len(product_cards)} products")
+                print(f"[{self.retailer_name}] Page {page_num}: {len(product_cards)} products found")
 
-                deals_found = 0
+                page_deals = 0
                 for card in product_cards:
                     asin = card.get('data-asin', '')
                     if asin in seen_asins:
@@ -138,10 +142,13 @@ class AmazonAUScraper(BaseScraper):
                         if deal['discount_pct'] >= 10:
                             all_deals.append(deal)
                             seen_asins.add(asin)
-                            deals_found += 1
+                            page_deals += 1
+                            category_deals += 1
 
-                print(f"[{self.retailer_name}] {deals_found} deals with 10%+ discount")
+                print(f"[{self.retailer_name}] → {page_deals} deals with 10%+ discount")
+
+            print(f"[{self.retailer_name}] {category_name}: {category_deals} total deals")
 
         self.deals = all_deals
-        print(f"[{self.retailer_name}] Total: {len(all_deals)} deals with 10%+ discounts")
+        print(f"\n[{self.retailer_name}] ✅ TOTAL: {len(all_deals)} deals across all categories")
         return all_deals

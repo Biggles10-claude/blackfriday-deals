@@ -40,7 +40,7 @@ def get_deals():
     except:
         pass
 
-    return jsonify({'deals': [], 'collections': {}, 'last_updated': None})
+    return jsonify({'deals': [], 'categories': {}, 'category_stats': {}, 'last_updated': None})
 
 @socketio.on('start_refresh')
 def handle_refresh():
