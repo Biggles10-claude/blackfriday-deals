@@ -18,7 +18,13 @@ class AmazonAUScraper(BaseScraper):
             ('computers & accessories', 'Computers'),
             ('smart home', 'Smart Home'),
             ('beauty & personal care', 'Beauty & Personal Care'),
-            ('tools & home improvement', 'Tools & DIY')
+            ('tools & home improvement', 'Tools & DIY'),
+            # New categories
+            ('innovative gadgets', 'Cool Gadgets & Tools'),
+            ('desk setup productivity', 'Office & Stationery'),
+            ('health gadgets fitness', 'Health & Wellness'),
+            ('car accessories', 'Automotive'),
+            ('watches bags jewelry', 'Fashion & Accessories')
         ]
 
     def parse_product_card(self, card) -> Optional[Dict]:
