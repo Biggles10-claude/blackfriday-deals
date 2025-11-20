@@ -65,8 +65,11 @@ def trigger_local_scrape():
         local_url = f'{LOCAL_WEBHOOK_URL}/webhook/trigger'
         response = httpx.post(
             local_url,
-            json={'timestamp': datetime.now().isoformat()},
-            headers={'X-Webhook-Signature': signature},
+            content=payload,
+            headers={
+                'X-Webhook-Signature': signature,
+                'Content-Type': 'application/json'
+            },
             timeout=5.0
         )
 
